@@ -24,9 +24,11 @@ public class MainActivity extends AppCompatActivity {
     private TextView tv;
 
     private Bitmap srcImage;
+    private Bitmap dstImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -59,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
                     srcImage = BitmapFactory.decodeStream(imageStream);
                     iv.setImageBitmap(srcImage);
 
-
                     new Thread(new Runnable() {
                         public void run() {
                             processImage(srcImage);
@@ -73,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
     private void processImage(Bitmap src){
         final int width = src.getWidth();
         final int height = src.getHeight();
-        final long startTime = System.nanoTime();
 
         runOnUiThread(new Runnable() {
             @Override
@@ -85,13 +85,18 @@ public class MainActivity extends AppCompatActivity {
         int[] image = new int[width * height];
         src.getPixels(image, 0, width, 0, 0, width, height);
 
+        final long startTime = System.nanoTime();
         int[] newImage = grayscale(image, width, height);
+        final long endTime = System.nanoTime();
+
 
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        final Bitmap dstImage = Bitmap.createBitmap(width, height, conf);
-        dstImage.setPixels(newImage, 0, width, 0, 0, width, height);
 
-        final long endTime = System.nanoTime();
+        if (dstImage == null) {
+            dstImage = Bitmap.createBitmap(width, height, conf);
+        }
+
+        dstImage.setPixels(newImage, 0, width, 0, 0, width, height);
 
         runOnUiThread(new Runnable() {
             @Override
@@ -104,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public native int[] grayscale(int[] image, int width, int height);
-    public native int[] histogram(int[] image, int width, int height);
 
     static {
         System.loadLibrary("native-lib");

@@ -1,30 +1,37 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.model.application'
 
-android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.3"
-    defaultConfig {
-        applicationId "me.ibrohim.clavaria"
-        minSdkVersion 15
-        targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                cppFlags "-std=c++11 -ljnigraphics"
+model {
+    android {
+        compileSdkVersion 24
+        buildToolsVersion "24.0.3"
+        defaultConfig {
+            applicationId "me.ibrohim.clavaria"
+            minSdkVersion.apiLevel 15
+            targetSdkVersion.apiLevel 24
+            versionCode 1
+            versionName "1.0"
+            testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        }
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles.add(file('proguard-android.txt'))
             }
         }
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        ndk {
+            moduleName "native-lib"
+            toolchain "clang"
+
+            ldFlags.add("-llog")
         }
-    }
-    externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
+        sources {
+            main {
+                jni {
+                    source {
+                        srcDir "src/main/cpp"
+                    }
+                }
+            }
         }
     }
 }
