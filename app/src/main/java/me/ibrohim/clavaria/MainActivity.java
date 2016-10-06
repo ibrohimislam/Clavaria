@@ -24,7 +24,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView tv;
 
     private Bitmap srcImage;
-    private Bitmap dstImage;
+    private Bitmap tempImage1;
+    private Bitmap tempImage2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +72,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void processImage(Bitmap src){
-        final int width = src.getWidth();
-        final int height = src.getHeight();
+    private void processImage(Bitmap srcImage){
+        final int width = srcImage.getWidth();
+        final int height = srcImage.getHeight();
+
+        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
 
         runOnUiThread(new Runnable() {
             @Override
@@ -82,33 +85,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        int[] image = new int[width * height];
-        src.getPixels(image, 0, width, 0, 0, width, height);
-
         final long startTime = System.nanoTime();
-        int[] newImage = grayscale(image, width, height);
-        final long endTime = System.nanoTime();
-
-
-        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-
-        if (dstImage == null) {
-            dstImage = Bitmap.createBitmap(width, height, conf);
+        if (tempImage1 == null){
+            tempImage1 = Bitmap.createBitmap(width, height, conf);
         }
-
-        dstImage.setPixels(newImage, 0, width, 0, 0, width, height);
+        mapReduceTest(tempImage1, srcImage);
+        final long endTime = System.nanoTime();
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 tv.setText("completed, took " + (endTime - startTime) + " ns");
-                iv.setImageBitmap(dstImage);
+                iv.setImageBitmap(tempImage1);
             }
         });
 
     }
 
-    public native int[] grayscale(int[] image, int width, int height);
+    public native int grayscale(Bitmap dst, Bitmap src);
+    public native int mapReduceTest(Bitmap dst, Bitmap src);
 
     static {
         System.loadLibrary("native-lib");

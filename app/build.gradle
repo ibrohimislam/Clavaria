@@ -23,6 +23,7 @@ model {
             toolchain "clang"
 
             ldFlags.add("-llog")
+            ldFlags.add("-ljnigraphics")
         }
         sources {
             main {
